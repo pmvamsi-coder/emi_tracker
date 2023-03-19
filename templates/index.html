@@ -1,14 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>EMI Tracker</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <style>
+{% extends "base.html" %}
+{% block content %}
+<title>EMI Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
         .form-control {
             text-align: right;
+            border-radius: 0;
+            border: none;
+            border-bottom: 2px solid #eee;
+            box-shadow: none;
+            font-size: 24px;
+        }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #eee;
+        }
+        .input-group-text {
+            text-align: left;
+            border-right: none;
+            border-radius: 0;
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #eee;
+            font-size: 24px;
+            color: #4CAF50;
+        }
+        .input-group .form-control {
+            text-align: left;
+            border-left: none;
+            border-radius: 0;
+            border: none;
+            border-bottom: 2px solid #eee;
+            box-shadow: none;
+            font-size: 24px;
+        }
+        .form-group label {
+            text-align: left;
+            font-size: 20px;
+            font-weight: 500;
+            color: #4CAF50;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #2E8B57;
+            border: none;
+            border-radius: 0;
+            font-size: 20px;
+            font-weight: 500;
         }
         .result {
             margin-top: 30px;
@@ -17,18 +65,6 @@
             text-align: center;
             color: #4CAF50;
         }
-        .input-group-text {
-            text-align: left;
-            border-right: none;
-        }
-        .input-group .form-control {
-            text-align: left;
-            border-left: none;
-        }
-        .form-group label {
-            text-align: left;
-        }
-
     </style>
     <script>
         function formatLoanAmount(input) {
@@ -37,54 +73,125 @@
             // Format the value with commas
             input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
+        function loanAmountSlider() {
+  var slider = document.getElementById("loan_amount_range");
+  var output = document.getElementById("loan_amount");
+  output.value = slider.value;
+}
+
+function interestRateSlider() {
+  var slider = document.getElementById("interest_rate_range");
+  var output = document.getElementById("interest_rate");
+  output.value = slider.value;
+}
+
+function tenureSlider() {
+  var slider = document.getElementById("tenure_range");
+  var output = document.getElementById("tenure");
+  output.value = slider.value;
+}
+
 
     </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>EMI Schedule</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous">
 </head>
 <body>
 <div class="container mt-5">
-    <h1 class="text-center mb-4">EMI Tracker</h1>
+    <h6 class="text-center mb-4">EMI Calculator</h6>
     <form method="post">
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
         <div class="form-group">
-            <label for="loan_amount">Loan Amount:</label>
+            <label for="loan_amount" class="font-weight-bold">Loan Amount:</label>
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <span class="input-group-text">Rs.</span>
+                    <span class="input-group-text">₹</span>
                 </div>
                 <input type="text" id="loan_amount" name="loan_amount" class="form-control"
                        placeholder="Enter loan amount (e.g. 10,00,000)" oninput="formatLoanAmount(this)">
+                <input type="range" class="custom-range ml-3" min="0" max="10000000" step="100000"
+                       id="loan_amount_range" oninput="loanAmountSlider()">
+
             </div>
         </div>
         <div class="form-group">
-            <label for="interest_rate" style="width: 100%;">Interest Rate:</label>
+            <label for="interest_rate" class="font-weight-bold">Interest Rate:</label>
             <div class="input-group">
                 <input type="text" id="interest_rate" name="interest_rate" class="form-control"
                        placeholder="Enter interest rate (e.g. 8.5)">
+                <input type="range" class="custom-range ml-3" min="0" max="20" step="0.1" id="interest_rate_range"
+                       oninput="interestRateSlider()">
                 <div class="input-group-append">
                     <span class="input-group-text">%</span>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label for="tenure" style="width: 100%;">Tenure:</label>
+            <label for="tenure" class="font-weight-bold">Tenure:</label>
             <div class="input-group">
                 <input type="text" id="tenure" name="tenure" class="form-control"
                        placeholder="Enter tenure in years (e.g. 20)">
+                <input type="range" class="custom-range ml-3" min="0" max="30" step="1" id="tenure_range"
+                       oninput="tenureSlider()">
                 <div class="input-group-append">
                     <span class="input-group-text">years</span>
                 </div>
             </div>
         </div>
         <div class="text-center">
-            <button type="submit" class="btn btn-primary">Calculate</button>
+            <button type="submit" class="btn btn-primary mt-4">Calculate EMI</button>
         </div>
     </form>
     {% if emi %}
-    <div class="result">
-        <p>Your EMI for a loan of Rs. {{ emi_info['loan_amount'] }} at {{ emi_info['interest_rate'] }}% interest rate
-            for {{ emi_info['tenure'] }} years is:</p>
-        <p>Rs. {{ emi }} </p>
+    <div class="result mt-5">
+        <p class="font-weight-bold">Your EMI for a loan of ₹ {{ emi_info['loan_amount'] }} at {{
+            emi_info['interest_rate'] }}% interest rate for {{ emi_info['tenure'] }} years is:</p>
+        <p class="font-weight-bold text-success">₹ {{ emi }}</p>
     </div>
     {% endif %}
 </div>
-</body>
-</html>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">EMI Schedule</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Month</th>
+            <th scope="col">Opening Balance</th>
+            <th scope="col">EMI</th>
+            <th scope="col">Principal</th>
+            <th scope="col">Interest</th>
+            <th scope="col">Closing Balance</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in emi_schedule %}
+        <tr>
+            <td>{{ item.month }}</td>
+            <td>₹ {{ item.opening_balance }}</td>
+            <td>₹ {{ item.emi }}</td>
+            <td>₹ {{ item.principal }}</td>
+            <td>₹ {{ item.interest }}</td>
+            <td>₹ {{ item.closing_balance }}</td>
+        </tr>
+        {% endfor %}
+        <tfoot>
+        <tr>
+            <td colspan="2">Total:</td>
+            <td>₹ {{ total_emi }}</td>
+            <td>₹ {{ total_principal }}</td>
+            <td>₹ {{ total_interest }}</td>
+            <td></td>
+        </tr>
+        </tfoot>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
