@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
+{% block pageheader %}
+<div style='text-decoration:bold'> EMI Calculator</div>
+{% endblock %} 
+{% block title %}
 <title>EMI Calculator</title>
+{% endblock %}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -103,7 +108,7 @@ function tenureSlider() {
 </head>
 <body>
 <div class="container mt-5">
-    <h6 class="text-center mb-4">EMI Calculator</h6>
+<!--     <h6 class="text-center mb-4">EMI Calculator</h6> -->
     <form method="post">
         {% if error_message %}
         <div class="alert alert-danger">{{ error_message }}</div>

@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 
 class Emi(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     loan_name = db.Column(db.Text, nullable=False)
     loan_amount = db.Column(db.Float, nullable=False)
     interest_rate = db.Column(db.Float, nullable=False)
@@ -13,3 +13,18 @@ class Emi(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     emi_amount = db.Column(db.Float, nullable=False)
     paid_off = db.Column(db.Boolean, nullable=False, default=False)
+
+
+class EmiSchedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    loan_name = db.Column(db.String(50), nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    opening_balance = db.Column(db.Float, nullable=False)
+    emi = db.Column(db.Float, nullable=False)
+    principal = db.Column(db.Float, nullable=False)
+    interest = db.Column(db.Float, nullable=False)
+    closing_balance = db.Column(db.Float, nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<EmiSchedule {self.id}>'

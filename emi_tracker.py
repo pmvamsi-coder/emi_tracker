@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect, flash
 from utils.functions import *
 from models import *
+from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+app.secret_key = 'ertwerg43t52ggrg24tdsfvvw45twrefwe424t'
 # https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/config/#connection-url-format
 # 3 slashes relative path( created in the same path). 4 slashes - needs to give absolute path
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///emi.db'
@@ -78,26 +80,72 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/add_emi', methods=['POST'])
-def add_emi():
-    loan_name = request.form['loan_name']
-    loan_amount = request.form['loan_amount']
-    interest_rate = request.form['interest_rate']
-    loan_term = request.form['loan_term']
-    start_date = request.form['start_date']
-    emi_amount = calculate_emi(loan_amount, interest_rate, loan_term)
+# @app.route('/add_emi', methods=['POST'])
+# def add_emi():
+#     loan_name = request.form['loan_name']
+#     loan_amount = request.form['loan_amount']
+#     interest_rate = request.form['interest_rate']
+#     loan_term = request.form['loan_term']
+#     start_date = request.form['start_date']
+#     emi_amount = calculate_emi(loan_amount, interest_rate, loan_term)
 
-    emi = Emi(loan_name=loan_name, loan_amount=loan_amount, interest_rate=interest_rate,
-              loan_term=loan_term, start_date=start_date, emi_amount=emi_amount)
+#     emi = Emi(loan_name=loan_name, loan_amount=loan_amount, interest_rate=interest_rate,
+#               loan_term=loan_term, start_date=start_date, emi_amount=emi_amount)
 
-    db.session.add(emi)
-    db.session.commit()
+#     db.session.add(emi)
+#     db.session.commit()
+#   # Insert data into the database
+#     emi_data = EmiSchedule(
+#             month=month,
+#             opening_balance=round(outstanding_principal + principal_paid, 2),
+#             emi=round(emi, 2),
+#             principal=round(principal_paid, 2),
+#             interest=round(interest, 2),
+#             closing_balance=round(outstanding_principal, 2),
+#         )
+#     db.session.add(emi_data)
+#     db.session.commit()
+
+  
 
     return "EMI information added successfully!"
+
+@app.route('/emi', methods=['GET', 'POST'])
+def emi():
+    if request.method == 'POST':
+        loan_name = request.form['loan_name']
+        loan_amount = float(request.form['loan_amount'])
+        interest_rate = float(request.form['interest_rate'])
+        tenure = int(request.form['tenure'])
+        emi_start_date = request.form['emi_start_date']
+        # emi_start_date = datetime.strptime(emi_start_date, '%Y-%m-%d')
+        
+        # emi_schedule = generate_emi_schedule(loan_amount, interest_rate, tenure)
+        emi_schedule = generate_emi_schedule1(loan_amount, interest_rate, tenure, emi_start_date)
+        
+        # for emi in emi_schedule['emi_schedule']:
+        #     new_emi = EmiSchedule(loan_name=loan_name,
+        #                           month=emi['month'],
+        #                           opening_balance=emi['opening_balance'],
+        #                           emi=emi['emi'],
+        #                           principal=emi['principal'],
+        #                           interest=emi['interest'],
+        #                           closing_balance=emi['closing_balance'])
+        #     db.session.add(new_emi)
+            
+        # db.session.commit()
+        # flash('EMI schedule added successfully!', 'success')
+        
+        # # return redirect(url_for('emi'))
+        return emi_schedule     
+    return render_template('emi.html')
+
+
 
 @app.route('/')
 def home():
   return render_template("home.html")
+  
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
