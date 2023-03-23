@@ -29,16 +29,16 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Remaining Balance:</strong> ${{ loan_details['remaining_balance'] }}</p>
-                        <p><strong>Remaining EMI Months:</strong> {{ loan_details['remaining_emi_months'] }}</p>
-                        <p><strong>Remaining Principal:</strong> ${{ loan_details['remaining_principal'] }}</p>
-                        <p><strong>Remaining Interest:</strong> ${{ loan_details['remaining_interest'] }}</p>
+                        <p><strong>Total EMI Paid:</strong> ₹{{ loan_details['total_emi_paid'] }}</p>
+                        <p><strong>Total Interest Paid:</strong> ₹{{ loan_details['total_interest_paid'] }}</p>
+                        <p><strong>Total Principal Paid:</strong> ₹{{ loan_details['total_principal_paid'] }}</p>
+                        <p><strong>Last EMI Date:</strong> {{ loan_details['last_emi_date'] }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Total EMI Paid:</strong> ${{ loan_details['total_emi_paid'] }}</p>
-                        <p><strong>Total Interest Paid:</strong> ${{ loan_details['total_interest_paid'] }}</p>
-                        <p><strong>Total Principal Paid:</strong> ${{ loan_details['total_principal_paid'] }}</p>
-                        <p><strong>Last EMI Date:</strong> {{ loan_details['last_emi_date'] }}</p>
+                        <p><strong>Remaining Balance:</strong> ₹{{ loan_details['remaining_balance'] }}</p>
+                        <p><strong>Remaining EMI Months:</strong> {{ loan_details['remaining_emi_months'] }}</p>
+                        <p><strong>Remaining Principal:</strong> ₹{{ loan_details['remaining_principal'] }}</p>
+                        <p><strong>Remaining Interest:</strong> ₹{{ loan_details['remaining_interest'] }}</p>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                <th>EMI</th>
                <th>Principal</th>
                <th>Interest</th>
-               <th>Closing Balance</th>
+               <th>O/s Principal</th>
             </tr>
          </thead>
          <tbody>

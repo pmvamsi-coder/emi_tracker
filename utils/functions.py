@@ -112,7 +112,7 @@ def generate_emi_schedule1(loan_amount, interest_rate, tenure, emi_start_date):
         # Calculate the date for the next month
         # emi_date += timedelta(days=30)
         # Increment the month by 1
-        print(emi_date, type(emi_date))
+        # print(emi_date, type(emi_date))
         emi_date = emi_date + relativedelta(months=1)
 
 
@@ -122,8 +122,24 @@ def generate_emi_schedule1(loan_amount, interest_rate, tenure, emi_start_date):
 def get_emi_status(loan_name,db):
   loan_name = loan_name
   sql_query = text(
-    f"SELECT    loan_name,    SUM(CASE WHEN emi_date <= datetime('now') THEN emi ELSE 0 END) AS total_emi_paid,    SUM(CASE WHEN emi_date <= datetime('now') THEN interest ELSE 0 END) AS total_interest_paid,    SUM(CASE WHEN emi_date <= datetime('now') THEN principal ELSE 0 END) AS total_principal_paid,   (SELECT closing_balance FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date <= datetime('now') ORDER BY month DESC LIMIT 1) AS remaining_balance,   (SELECT principal FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1) AS remaining_principal,   (SELECT interest FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1) AS remaining_interest,   (SELECT COUNT(*) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now')) AS remaining_emi_months,   (SELECT emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' ORDER BY month DESC LIMIT 1) AS last_emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' GROUP BY loan_name; "
+    f"""SELECT    
+    loan_name,    
+    SUM(CASE WHEN emi_date <= datetime('now') THEN emi ELSE 0 END) AS total_emi_paid,    
+    SUM(CASE WHEN emi_date <= datetime('now') THEN interest ELSE 0 END) AS total_interest_paid,    
+    SUM(CASE WHEN emi_date <= datetime('now') THEN principal ELSE 0 END) AS total_principal_paid,   
+    (SELECT closing_balance FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date <= datetime('now') ORDER BY month DESC LIMIT 1) AS remaining_balance,   
+    (SELECT principal FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1) AS remaining_principal,   
+    SUM(CASE WHEN emi_date > datetime('now') THEN interest ELSE 0 END) AS remaining_interest,   
+    (SELECT COUNT(*) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now')) AS remaining_emi_months,   
+    (SELECT emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' ORDER BY month DESC LIMIT 1) AS last_emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' GROUP BY loan_name; """
   )
   # Execute the SQL query and fetch the results
   results = db.session.execute(sql_query).fetchall()
+  result_dict = dict(results[0]._mapping)
+  result_dict['total_emi_paid'] = formatINR(result_dict['total_emi_paid'])
+  result_dict['total_principal_paid'] = formatINR(result_dict['total_principal_paid'])
+  result_dict['total_interest_paid'] = formatINR(result_dict['total_interest_paid'])
+  result_dict['remaining_balance'] = formatINR(result_dict['remaining_balance'])
+  result_dict['remaining_principal'] = formatINR(result_dict['remaining_principal'])
+  result_dict['remaining_interest'] = formatINR(result_dict['remaining_interest'])
   return dict(results[0]._mapping)
