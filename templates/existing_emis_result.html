@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Existing EMIs Result</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+      .green-row {
+    background-color: green;
+    color: white;
+}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Existing EMIs Result</h1>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Opening Balance</th>
+            <th>EMI</th>
+            <th>Principal</th>
+            <th>Interest</th>
+            <th>Closing Balance</th>
+            <th>EMI Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emi in emis %}
+            <tr class="{% if emi.emi_date.date() < date.today() %}green-row{% endif %}">
+              <td>{{ emi.month }}</td>
+              <td>{{ emi.opening_balance }}</td>
+              <td>{{ emi.emi }}</td>
+              <td>{{ emi.principal }}</td>
+              <td>{{ emi.interest }}</td>
+              <td>{{ emi.closing_balance }}</td>
+              <td>{{ emi.emi_date }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

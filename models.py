@@ -19,11 +19,12 @@ class EmiSchedule(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     loan_name = db.Column(db.String(50), nullable=False)
     month = db.Column(db.Integer, nullable=False)
-    opening_balance = db.Column(db.Float, nullable=False)
-    emi = db.Column(db.Float, nullable=False)
-    principal = db.Column(db.Float, nullable=False)
-    interest = db.Column(db.Float, nullable=False)
-    closing_balance = db.Column(db.Float, nullable=False)
+    opening_balance = db.Column(db.Numeric(10, 2), nullable=False)
+    emi = db.Column(db.Numeric(10, 2), nullable=False)
+    principal = db.Column(db.Numeric(10, 2), nullable=False)
+    interest = db.Column(db.Numeric(10, 2), nullable=False)
+    closing_balance = db.Column(db.Numeric(10, 2), nullable=False)
+    emi_date = db.Column(db.DateTime, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):

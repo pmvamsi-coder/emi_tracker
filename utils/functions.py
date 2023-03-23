@@ -1,6 +1,7 @@
 import math
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from sqlalchemy import text
 
 def formatINR(number):
     """Formats the given number as an Indian Rupee amount.
@@ -116,3 +117,13 @@ def generate_emi_schedule1(loan_amount, interest_rate, tenure, emi_start_date):
 
 
     return emi_schedule
+
+
+def get_emi_status(loan_name,db):
+  loan_name = loan_name
+  sql_query = text(
+    f"SELECT    loan_name,    SUM(CASE WHEN emi_date <= datetime('now') THEN emi ELSE 0 END) AS total_emi_paid,    SUM(CASE WHEN emi_date <= datetime('now') THEN interest ELSE 0 END) AS total_interest_paid,    SUM(CASE WHEN emi_date <= datetime('now') THEN principal ELSE 0 END) AS total_principal_paid,   (SELECT closing_balance FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date <= datetime('now') ORDER BY month DESC LIMIT 1) AS remaining_balance,   (SELECT principal FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1) AS remaining_principal,   (SELECT interest FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1) AS remaining_interest,   (SELECT COUNT(*) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now')) AS remaining_emi_months,   (SELECT emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' ORDER BY month DESC LIMIT 1) AS last_emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' GROUP BY loan_name; "
+  )
+  # Execute the SQL query and fetch the results
+  results = db.session.execute(sql_query).fetchall()
+  return dict(results[0]._mapping)

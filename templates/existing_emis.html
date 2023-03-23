@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+   <h1 class="mb-4">Existing EMIs</h1>
+   <form method="POST" action="{{ url_for('existing_emis') }}">
+      <div class="form-group">
+         <label for="loan_name">Loan Name:</label>
+         <select class="form-control" id="loan_name" name="loan_name">
+            <option value="" selected disabled>Select loan</option>
+            {% for loan in loan_names %}
+            {% if loan.loan_name == selected_loan_name %}
+            <option value="{{ loan.loan_name }}" selected>{{ loan.loan_name }}</option>
+            {% else %}
+            <option value="{{ loan.loan_name }}">{{ loan.loan_name }}</option>
+            {% endif %}
+            {% endfor %}
+         </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+   </form>
+   <div>
+      <br>
+     {% if loan_details %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h1>{{ loan_details['loan_name'] }} Details</h1>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Remaining Balance:</strong> ${{ loan_details['remaining_balance'] }}</p>
+                        <p><strong>Remaining EMI Months:</strong> {{ loan_details['remaining_emi_months'] }}</p>
+                        <p><strong>Remaining Principal:</strong> ${{ loan_details['remaining_principal'] }}</p>
+                        <p><strong>Remaining Interest:</strong> ${{ loan_details['remaining_interest'] }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Total EMI Paid:</strong> ${{ loan_details['total_emi_paid'] }}</p>
+                        <p><strong>Total Interest Paid:</strong> ${{ loan_details['total_interest_paid'] }}</p>
+                        <p><strong>Total Principal Paid:</strong> ${{ loan_details['total_principal_paid'] }}</p>
+                        <p><strong>Last EMI Date:</strong> {{ loan_details['last_emi_date'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+     {% endif %}
+
+     {% if emis %}
+      <br>
+      <table class="table table-striped table-bordered mt-4">
+         <thead>
+            <tr>
+               <th>Month</th>
+               <th>EMI Date</th>
+               <th>Opening Balance</th>
+               <th>EMI</th>
+               <th>Principal</th>
+               <th>Interest</th>
+               <th>Closing Balance</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for emi in emis %}
+            <tr class="{% if emi.emi_date.date() < date.today() %}green-row{% endif %}">
+               <td>{{ emi.month }}</td>
+               <td>{{ emi.emi_date }}</td>
+               <td>{{ emi.opening_balance }}</td>
+               <td>{{ emi.emi }}</td>
+               <td>{{ emi.principal }}</td>
+               <td>{{ emi.interest }}</td>
+               <td>{{ emi.closing_balance }}</td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+     {% endif %}
+   </div>
+</div>
+{% endblock %}
