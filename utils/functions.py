@@ -142,4 +142,4 @@ def get_emi_status(loan_name,db):
   result_dict['remaining_balance'] = formatINR(result_dict['remaining_balance'])
   result_dict['remaining_principal'] = formatINR(result_dict['remaining_principal'])
   result_dict['remaining_interest'] = formatINR(result_dict['remaining_interest'])
-  return dict(results[0]._mapping)
+  return result_dict

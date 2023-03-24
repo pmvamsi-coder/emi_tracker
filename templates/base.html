@@ -64,7 +64,7 @@
                   <a href="/" class="nav_logo"> <i class='bx bx-layer nav_logo-icon'></i> <span class="nav_logo-name">Home</span>
                   </a>
                   <div class="nav_list">
-                     <a href="/" class="nav_link active">
+                     <a href="/" class="nav_link ">
                      <i class='bx bx-grid-alt nav_icon'></i>
                      <span class="nav_name">Dashboard</span>
                      </a>
@@ -72,7 +72,7 @@
                      <i class='bx bx-user nav_icon'></i>
                      <span class="nav_name">Users</span>
                      </a>
-                     <a href="{{url_for('existing_emis')}}" class="nav_link">
+                     <a href="/existing_emis" class="nav_link">
                      <i class='bx bx-message-square-detail nav_icon'></i>
                      <span class="nav_name">Existing EMI's</span>
                      </a>
@@ -104,7 +104,7 @@
          <script type='text/javascript' src='#'></script>
          <script type='text/javascript' src='#'></script>
          <script type='text/javascript' src='#'></script>
-         <script type='text/javascript'>document.addEventListener("DOMContentLoaded", function(event) {
+<!--          <script type='text/javascript'> document.addEventListener("DOMContentLoaded", function(event) {
             const showNavbar = (toggleId, navId, bodyId, headerId) =>{
             const toggle = document.getElementById(toggleId),
             nav = document.getElementById(navId),
@@ -142,12 +142,90 @@
              // Your code to run since DOM is loaded and ready
             });
             
-         </script>
-         <script type='text/javascript'>var myLink = document.querySelector('a[href="#"]');
-            myLink.addEventListener('click', function(e) {
-              e.preventDefault();
-            });
-            
-         </script>
+         </script> -->
+<!-- JavaScript -->
+<!--     <script>
+      // Show/hide navbar
+      function showNavbar(toggleId, navId, bodyId, headerId) {
+        const toggle = document.getElementById(toggleId),
+          nav = document.getElementById(navId),
+          bodypd = document.getElementById(bodyId),
+          headerpd = document.getElementById(headerId);
+
+        // Validate that all variables exist
+        if (toggle && nav && bodypd && headerpd) {
+          toggle.addEventListener("click", () => {
+            // Show navbar
+            nav.classList.toggle("show");
+            // Change icon
+            toggle.classList.toggle("bx-x");
+            // Add padding to body
+            bodypd.classList.toggle("body-pd");
+            // Add padding to header
+            headerpd.classList.toggle("header-pd");
+          });
+        }
+      }
+
+      showNavbar("header-toggle", "nav-bar", "body-pd", "header");
+
+      // Add active class to clicked link
+      const linkColor = document.querySelectorAll(".nav_link");
+
+      function colorLink() {
+        if (linkColor) {
+          linkColor.forEach((l) => l.classList.remove("active"));
+          this.classList.add("active");
+        }
+      }
+      linkColor.forEach((l) => l.addEventListener("click", colorLink));
+    </script> -->
+          
+<script>
+    // Show/hide navbar
+    function showNavbar(toggleId, navId, bodyId, headerId) {
+      const toggle = document.getElementById(toggleId),
+        nav = document.getElementById(navId),
+        bodypd = document.getElementById(bodyId),
+        headerpd = document.getElementById(headerId);
+
+      // Validate that all variables exist
+      if (toggle && nav && bodypd && headerpd) {
+        toggle.addEventListener("click", () => {
+          // Show navbar
+          nav.classList.toggle("show");
+          // Change icon
+          toggle.classList.toggle("bx-x");
+          // Add padding to body
+          bodypd.classList.toggle("body-pd");
+          // Add padding to header
+          headerpd.classList.toggle("header-pd");
+        });
+      }
+    }
+
+    showNavbar("header-toggle", "nav-bar", "body-pd", "header");
+
+    // Get current url and remove domain name from it
+    const currentUrl = window.location.pathname.split('/').pop();
+
+    // Get all links in navbar
+    const navLinks = document.querySelectorAll('.nav_link');
+
+    // Loop through links and add 'active' class to current link
+    navLinks.forEach(link => {
+      const linkUrl = link.getAttribute('href').split('/').pop();
+      if (linkUrl === currentUrl) {
+        link.classList.add('active');
+      }
+    });
+</script>
+
+
+
+
+
+
+        
    </body>
 </html>
