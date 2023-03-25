@@ -15,7 +15,7 @@ with app.app_context():
 
 
 @app.route("/emi_calculator", methods=["GET", "POST"])
-def index():
+def emi_repayment_calculator():
   if request.method == "POST":
     loan_amount = request.form.get("loan_amount")
     interest_rate = request.form.get("interest_rate")
@@ -24,33 +24,33 @@ def index():
     # Check if any of the required fields are empty
     if not all([loan_amount, interest_rate, tenure]):
       error_message = "Please enter all the required fields."
-      return render_template("index.html", error_message=error_message)
+      return render_template("emi_calculator.html", error_message=error_message)
 
     # Check if loan amount is a valid float value
     try:
       loan_amount = float(loan_amount.replace(",", ""))
     except ValueError:
       error_message = "Invalid loan amount. Please enter a valid number."
-      return render_template("index.html", error_message=error_message)
+      return render_template("emi_calculator.html", error_message=error_message)
 
     # Check if interest rate is a valid float value
     try:
       interest_rate = float(interest_rate)
     except ValueError:
       error_message = "Invalid interest rate. Please enter a valid number."
-      return render_template("index.html", error_message=error_message)
+      return render_template("emi_calculator.html", error_message=error_message)
 
     # Check if tenure is a valid integer value
     try:
       tenure = int(tenure)
     except ValueError:
       error_message = "Invalid tenure. Please enter a valid integer."
-      return render_template("index.html", error_message=error_message)
+      return render_template("emi_calculator.html", error_message=error_message)
 
     # Check if the values are within acceptable ranges
     if loan_amount <= 0 or interest_rate <= 0 or tenure <= 0:
       error_message = "Invalid values. Please enter values greater than 0."
-      return render_template("index.html", error_message=error_message)
+      return render_template("emi_calculator.html", error_message=error_message)
 
     emi = formatINR(calculate_emi(loan_amount, interest_rate, tenure))
     emi_info = {
@@ -58,7 +58,7 @@ def index():
       "interest_rate": interest_rate,
       "tenure": tenure,
     }
-    result = generate_emi_schedule(loan_amount, interest_rate, tenure)
+    result = emi_repayment_schedule_calc(loan_amount=loan_amount, interest_rate=interest_rate, tenure=tenure)
     emi_schedule = result["emi_schedule"]
     for item in emi_schedule:
       for k, v in item.items():
@@ -68,7 +68,7 @@ def index():
     emi_info["total_principal"] = result["total_principal"]
     emi_info["total_interest"] = result["total_interest"]
     return render_template(
-      "index.html",
+      "emi_calculator.html",
       emi=emi,
       emi_info=emi_info,
       emi_schedule=emi_schedule,
@@ -77,39 +77,11 @@ def index():
       total_principal=formatINR(emi_info["total_principal"]),
     )
 
-  return render_template("index.html")
-
-  # @app.route('/add_emi', methods=['POST'])
-  # def add_emi():
-  #     loan_name = request.form['loan_name']
-  #     loan_amount = request.form['loan_amount']
-  #     interest_rate = request.form['interest_rate']
-  #     loan_term = request.form['loan_term']
-  #     start_date = request.form['start_date']
-  #     emi_amount = calculate_emi(loan_amount, interest_rate, loan_term)
-
-  #     emi = Emi(loan_name=loan_name, loan_amount=loan_amount, interest_rate=interest_rate,
-  #               loan_term=loan_term, start_date=start_date, emi_amount=emi_amount)
-
-  #     db.session.add(emi)
-  #     db.session.commit()
-  #   # Insert data into the database
-  #     emi_data = EmiSchedule(
-  #             month=month,
-  #             opening_balance=round(outstanding_principal + principal_paid, 2),
-  #             emi=round(emi, 2),
-  #             principal=round(principal_paid, 2),
-  #             interest=round(interest, 2),
-  #             closing_balance=round(outstanding_principal, 2),
-  #         )
-  #     db.session.add(emi_data)
-  #     db.session.commit()
-
-  return "EMI information added successfully!"
+  return render_template("emi_calculator.html")
 
 
-@app.route("/emi", methods=["GET", "POST"])
-def emi():
+@app.route("/add_emi", methods=["GET", "POST"])
+def add_emi():
   if request.method == "POST":
     loan_name = request.form["loan_name"]
     loan_amount = float(request.form["loan_amount"])
@@ -118,9 +90,29 @@ def emi():
     emi_start_date = request.form["emi_start_date"]
     # emi_start_date = datetime.strptime(emi_start_date, '%Y-%m-%d')
 
+    # Check if the loan name already exists in the database
+    existing_loan = Emi.query.filter_by(loan_name=loan_name).first()
+
+    if existing_loan:
+      # If the loan name already exists, display an error message
+      error_msg = f"A loan with the name '{loan_name}' already exists in the database..!!!"
+      flash(error_msg, category='warning')
+      return render_template('add_emi.html', error=error_msg)
+
     # emi_schedule = generate_emi_schedule(loan_amount, interest_rate, tenure)
     emi_schedule = generate_emi_schedule1(loan_amount, interest_rate, tenure,
-                                          emi_start_date)
+                                         emi_start_date)
+
+    new_emi_info = Emi(loan_name=loan_name,
+                       loan_amount=loan_amount,
+                       interest_rate=interest_rate,
+                       loan_term=tenure,
+                       start_date=datetime.strptime(emi_start_date,
+                                                    "%Y-%m-%d"),
+                       emi_amount=calculate_emi(loan_amount=loan_amount,
+                                                interest_rate=interest_rate,
+                                                tenure=tenure))
+    db.session.add(new_emi_info)
 
     for emi in emi_schedule:
       new_emi = EmiSchedule(
@@ -138,50 +130,48 @@ def emi():
     db.session.commit()
     flash("EMI schedule added successfully!", "success")
 
-    return redirect(url_for("emi"))
+    return redirect(url_for("add_emi"))
     # return emi_schedule
-  return render_template("emi.html")
-
-
-# @app.route('/existing_emis')
-# def existing_emis():
-#     # Get the distinct loan names from the EmiSchedule table
-#     loan_names = db.session.query(EmiSchedule.loan_name).distinct().all()
-
-#     # Render the HTML page with the dropdown menu
-#     return render_template('existing_emis.html', loan_names=loan_names)
-
-# @app.route('/existing_emis/result', methods=['POST'])
-# def existing_emis_result():
-#     # Get the selected loan name from the dropdown menu
-#     loan_name = request.form['loan_name']
-
-#     # Get the data from the EmiSchedule table based on the selected loan name
-#     emis = EmiSchedule.query.filter_by(loan_name=loan_name).all()
-
-#     # Render the HTML page with the data in a table
-#     return render_template('existing_emis_result.html', emis=emis)
-
-# from datetime import datetime, date
-# from flask import render_template, request
+  return render_template("add_emi.html")
 
 
 @app.route("/existing_emis", methods=["GET", "POST"])
 def existing_emis():
-  # loan_names = EmiSchedule.query.distinct(EmiSchedule.loan_name).order_by(EmiSchedule.loan_name).all()
   loan_names = db.session.query(EmiSchedule.loan_name).distinct().all()
 
   if request.method == "POST":
     selected_loan_name = request.form["loan_name"]
+
     emis = EmiSchedule.query.filter_by(loan_name=selected_loan_name).all()
-    # return render_template('existing_emis_result.html', emis=emis, date=date)
+
+    emi_data = Emi.query.filter_by(loan_name=selected_loan_name).first()
+    
+    loan_info = {}
+    if emi_data:
+      loan_info = {
+        'loan_name': emi_data.loan_name,
+        'loan_amount': emi_data.loan_amount,
+        'interest_rate': emi_data.interest_rate,
+        'loan_term': emi_data.loan_term,
+        'start_date': emi_data.start_date.strftime('%Y-%m-%d'),
+        'emi_amount': emi_data.emi_amount,
+        'paid_off': emi_data.paid_off,
+        'created_date': emi_data.created_date.strftime('%Y-%m-%d')
+      }
+    else:
+      print('No data found for loan name: my_loan')
+
+    loan_info['loan_status'] = get_emi_status(loan_name=selected_loan_name,
+                                              db=db)
+
     return render_template("existing_emis.html",
                            loan_names=loan_names,
                            emis=emis,
                            date=date,
                            selected_loan_name=selected_loan_name,
-                           loan_details=get_emi_status(
-                             loan_name=selected_loan_name, db=db))
+                           loan_info=loan_info)
+
+    print(emi_dict)
 
   return render_template("existing_emis.html", loan_names=loan_names)
 
