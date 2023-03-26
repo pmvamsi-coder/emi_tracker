@@ -3,40 +3,44 @@
 <div> Dashboard</div>
 {% endblock %}
 {% block content %}
-
 <body>
-  <div class="container">
-    <h1>My Pages</h1>
-    <hr>
-    <div class="row">
-      <div class="col-sm-6 mb-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Home Loan Calculator</h5>
-            <p class="card-text">A home loan calculator is a tool that helps you estimate your monthly mortgage payments based on your loan amount, interest rate, and repayment term. It can also show you how much interest you'll pay over the life of the loan and help you decide whether a particular loan option is affordable for you.</p>
-            <a href="/emi_calculator" class="btn btn-primary">Click here</a>
-<!--             <a href="#" class="btn btn-primary">Service 2</a> -->
-          </div>
-        </div>
+   <div class="container">
+      <h1>My Pages</h1>
+      <hr>
+      <div class="row">
+         <div class="col-sm-4 mb-3">
+            <div class="card">
+               <div class="card-body d-flex flex-column justify-content-center" style="height: 200px">
+                  <h5 class="card-title">Home Loan Calculator</h5>
+                  <p class="card-text">Calculate your monthly mortgage payments and total interest over the life of the loan with our home loan calculator.</p>
+                  <a href="/dash/emi_calculator" class="btn btn-primary align-self-center">Click here</a>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-4 mb-3">
+            <div class="card">
+               <div class="card-body d-flex flex-column justify-content-center" style="height: 200px">
+                  <h5 class="card-title">Add New Loan</h5>
+                  <p class="card-text">Add a new loan to the database with details such as loan amount, interest rate, and repayment term.</p>
+                  <a href="/dash/add_emi" class="btn btn-primary align-self-center">Click here</a>
+               </div>
+            </div>
+         </div>
+         <div class="col-sm-4 mb-3">
+            <div class="card">
+               <div class="card-body d-flex flex-column justify-content-center" style="height: 200px">
+                  <h5 class="card-title">Review Loans</h5>
+                  <p class="card-text">Review the details of existing loans in the database and modify the details of existing loans.</p>
+                  <a href="/review_loans" class="btn btn-primary align-self-center">Click here</a>
+               </div>
+            </div>
+         </div>
       </div>
-      <div class="col-sm-6 mb-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Add New Loan</h5>
-            <p class="card-text">To add new loan details to the database.</p>
-            <a href="/add_emi" class="btn btn-primary">Click here</a>
-<!--             <a href="#" class="btn btn-primary">Service 2</a> -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-          integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-
-
+   </div>
+   <!-- Bootstrap JS -->
+   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 </body>
 {% endblock %}

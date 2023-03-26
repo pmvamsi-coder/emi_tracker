@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h1>Review Loans</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Loan Name</th>
+        <th>Loan Amount</th>
+        <th>Interest Rate</th>
+        <th>Loan Term (months)</th>
+        <th>Start Date</th>
+        <th>EMI Amount</th>
+        <th>Paid Off</th>
+        <th>Created Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emi in emis %}
+      <tr>
+        <td>{{ emi.loan_name }}</td>
+        <td>{{ emi.loan_amount }}</td>
+        <td>{{ emi.interest_rate }}</td>
+        <td>{{ emi.loan_term }}</td>
+        <td>{{ emi.start_date.strftime('%d %b %Y') }}</td>
+        <td>{{ emi.emi_amount }}</td>
+        <td>{{ "Yes" if emi.paid_off else "No" }}</td>
+        <td>{{ emi.created_date.strftime('%d %b %Y') }}</td>
+        <td>
+          <form method="POST">
+            <input type="hidden" name="loan_name" value="{{ emi.loan_name }}">
+            <input type="hidden" name="paid_off" value="{{ not emi.paid_off }}">
+            <button type="submit" class="btn btn-primary {% if emi.paid_off %}btn-success{% endif %}">{{ "Mark Unpaid" if emi.paid_off else "Mark Paid" }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

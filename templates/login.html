@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Login</h1>
+    <form action="{{ url_for('login') }}" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" name="remember_me" class="form-check-input">
+            <label class="form-check-label" for="remember_me">Remember me</label>
+        </div>
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+{% endblock %}

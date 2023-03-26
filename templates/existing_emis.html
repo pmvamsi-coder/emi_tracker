@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-   <h1 class="mb-4">Existing EMIs</h1>
+   <h1 class="mb-4">Repayment Schedules</h1>
    <form method="POST" action="{{ url_for('existing_emis') }}">
       <div class="form-group">
          <label for="loan_name">Loan Name:</label>
@@ -23,61 +23,72 @@
      {% if loan_info %}
       <div class="container mt-5">
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h1>{{ loan_info['loan_status']['loan_name'] }} Details</h1>
+    <div class="card-header" style="background: linear-gradient(to right, #41454a, #1c1e22); color: white;">
+   <h1 style="font-size: 2rem;">{{ loan_info['loan_status']['loan_name'] }} Loan Details</h1>
+</div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Total Loan Amount:</strong> ₹{{ loan_info['loan_amount'] }}</p>
+                <p><strong>EMI's SUM Paid (Till today):</strong> ₹{{ loan_info['loan_status']['total_emi_paid'] }}</p>
+                <p><strong>Total Principal Paid (Till today) out of EMI's sum total:</strong> ₹{{ loan_info['loan_status']['total_principal_paid'] }}</p>
+                <p><strong>Total Interest Paid (Till today)  out of EMI's sum total:</strong> ₹{{ loan_info['loan_status']['total_interest_paid'] }}</p>
+                <p><strong>Last EMI Date:</strong> {{ loan_info['loan_status']['last_emi_date'] }}</p>
+                <p><strong>Loan Tenure:</strong> {{ loan_info['loan_term'] }} years</p>
+                
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Total Loan taken:</strong> ₹{{ loan_info['loan_status']['total_emi_paid'] }}</p>
-                        <p><strong>Total EMI Paid:</strong> ₹{{ loan_info['loan_status']['total_emi_paid'] }}</p>
-                        <p><strong>Total Interest Paid:</strong> ₹{{ loan_info['loan_status']['total_interest_paid'] }}</p>
-                        <p><strong>Total Principal Paid:</strong> ₹{{ loan_info['loan_status']['total_principal_paid'] }}</p>
-                        <p><strong>Last EMI Date:</strong> {{ loan_info['loan_status']['last_emi_date'] }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Remaining Balance:</strong> ₹{{ loan_info['loan_status']['remaining_balance'] }}</p>
-                        <p><strong>Remaining EMI Months:</strong> {{ loan_info['loan_status']['remaining_emi_months'] }}</p>
-                        <p><strong>Remaining Principal:</strong> ₹{{ loan_info['loan_status']['remaining_principal'] }}</p>
-                        <p><strong>Remaining Interest:</strong> ₹{{ loan_info['loan_status']['remaining_interest'] }}</p>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <p><strong>Total to be paid (Including Interest):</strong> ₹{{ loan_info['loan_status']['total_to_be_paid_in_loan_tenure'] }}</p>
+                <p><strong>Total EMI's SUM to be paid:</strong> ₹{{ loan_info['loan_status']['outstanding_emis_sum_to_be_paid'] }}</p>
+                <p><strong>Total Outstanding Principal:</strong> ₹{{ loan_info['loan_status']['remaining_principal'] }}</p>
+                <p><strong>Remaining Interest:</strong> ₹{{ loan_info['loan_status']['remaining_interest'] }}</p>
+                <p><strong>Interest Rate:</strong> {{ loan_info['interest_rate'] }} % p.a</p>
+                <p><strong>Remaining EMI Months:</strong> {{ loan_info['loan_status']['remaining_emi_months'] }}</p>
             </div>
         </div>
+    </div>
+</div>
+
+        {% if emis %}
+<br>
+<div class="table-responsive">
+   <table class="table table-striped table-bordered mt-4">
+      <thead class="thead-dark sticky-top">
+         <tr>
+            <th>Month</th>
+            <th>EMI Date</th>
+            <th>Opening Balance</th>
+            <th>EMI</th>
+            <th>Principal</th>
+            <th>Interest</th>
+            <th>O/s Principal</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for emi in emis %}
+         <tr class="{% if emi.emi_date < date.today() %}green-row{% endif %}">
+            <td>{{ emi.month }}</td>
+            <td>{{ emi.emi_date }}</td>
+            <td>{{ emi.opening_balance }}</td>
+            <td>{{ emi.emi }}</td>
+            <td>{{ emi.principal }}</td>
+            <td>{{ emi.interest }}</td>
+            <td>{{ emi.closing_balance }}</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+</div>
+{% endif %}
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
      {% endif %}
 
-     {% if emis %}
-      <br>
-      <table class="table table-striped table-bordered mt-4">
-         <thead>
-            <tr>
-               <th>Month</th>
-               <th>EMI Date</th>
-               <th>Opening Balance</th>
-               <th>EMI</th>
-               <th>Principal</th>
-               <th>Interest</th>
-               <th>O/s Principal</th>
-            </tr>
-         </thead>
-         <tbody>
-            {% for emi in emis %}
-            <tr class="{% if emi.emi_date < date.today() %}green-row{% endif %}">
-               <td>{{ emi.month }}</td>
-               <td>{{ emi.emi_date }}</td>
-               <td>{{ emi.opening_balance }}</td>
-               <td>{{ emi.emi }}</td>
-               <td>{{ emi.principal }}</td>
-               <td>{{ emi.interest }}</td>
-               <td>{{ emi.closing_balance }}</td>
-            </tr>
-            {% endfor %}
-         </tbody>
-      </table>
-     {% endif %}
+     
+
    </div>
 </div>
 {% endblock %}

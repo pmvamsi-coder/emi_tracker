@@ -24,44 +24,51 @@ def calculate_emi(loan_amount, interest_rate, tenure):
 
 
 def emi_repayment_schedule_calc(loan_amount, interest_rate, tenure):
-    emi_schedule = []
-    outstanding_principal = loan_amount
-    rate = interest_rate / 1200.0  # monthly interest rate
-    emi = calculate_emi(loan_amount, interest_rate, tenure)
-    total_interest_paid = 0
-    total_principal_paid = 0
+  emi_schedule = []
+  outstanding_principal = loan_amount
+  rate = interest_rate / 1200.0  # monthly interest rate
+  emi = calculate_emi(loan_amount, interest_rate, tenure)
+  total_interest_paid = 0
+  total_principal_paid = 0
 
-    for month in range(1, tenure * 12 + 1):
-        interest = outstanding_principal * rate
-        principal_paid = emi - interest
-        outstanding_principal -= principal_paid
+  for month in range(1, tenure * 12 + 1):
+    interest = outstanding_principal * rate
+    principal_paid = emi - interest
+    outstanding_principal -= principal_paid
 
-        if outstanding_principal < 0:
-            outstanding_principal = 0
+    if outstanding_principal < 0:
+      outstanding_principal = 0
 
-        total_interest_paid += interest
-        total_principal_paid += principal_paid
+    total_interest_paid += interest
+    total_principal_paid += principal_paid
 
-        emi_schedule.append({
-            'month': month,
-            'opening_balance': round(outstanding_principal + principal_paid, 2),
-            'emi': round(emi, 2),
-            'principal': round(principal_paid, 2),
-            'interest': round(interest, 2),
-            'closing_balance': round(outstanding_principal, 2),
-        })
-    total_emi = round(emi_schedule[0]['emi'] * len(emi_schedule), 2)
-    total_principal = round(total_principal_paid, 2)
-    total_interest = round(total_interest_paid, 2)
+    emi_schedule.append({
+      'month':
+      month,
+      'opening_balance':
+      round(outstanding_principal + principal_paid, 2),
+      'emi':
+      round(emi, 2),
+      'principal':
+      round(principal_paid, 2),
+      'interest':
+      round(interest, 2),
+      'closing_balance':
+      round(outstanding_principal, 2),
+    })
+  total_emi = round(emi_schedule[0]['emi'] * len(emi_schedule), 2)
+  total_principal = round(total_principal_paid, 2)
+  total_interest = round(total_interest_paid, 2)
 
-    return {
-        'emi_schedule': emi_schedule,
-        'total_emi': total_emi,
-        'total_principal': total_principal,
-        'total_interest': total_interest,
-    }
+  return {
+    'emi_schedule': emi_schedule,
+    'total_emi': total_emi,
+    'total_principal': total_principal,
+    'total_interest': total_interest,
+  }
 
-def generate_emi_schedule1(loan_amount, interest_rate, tenure, emi_start_date):
+
+def generate_emi_schedule(loan_amount, interest_rate, tenure, emi_start_date):
   # Calculate the monthly interest rate
   monthly_interest_rate = interest_rate / 1200
 
@@ -126,12 +133,15 @@ def get_emi_status(loan_name, db):
     round(SUM(CASE WHEN emi_date <= datetime('now') THEN emi ELSE 0 END),2) AS total_emi_paid,    
     round(SUM(CASE WHEN emi_date <= datetime('now') THEN interest ELSE 0 END),2) AS total_interest_paid,    
     round(SUM(CASE WHEN emi_date <= datetime('now') THEN principal ELSE 0 END),2) AS total_principal_paid,   
-    (SELECT closing_balance FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date <= datetime('now') ORDER BY month DESC LIMIT 1) AS remaining_balance,   
+    round((SELECT sum(emi) FROM emi_schedule WHERE loan_name = '{loan_name}'),2) AS total_to_be_paid_in_loan_tenure,   
     round((SELECT sum(principal) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now') ORDER BY month LIMIT 1),2) AS remaining_principal,   
-    SUM(CASE WHEN emi_date > datetime('now') THEN interest ELSE 0 END) AS remaining_interest,   
+    round(SUM(CASE WHEN emi_date > datetime('now') THEN interest ELSE 0 END),2) AS remaining_interest,   
+    round((SELECT sum(emi) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now')),2) AS outstanding_emis_sum_to_be_paid,
     (SELECT COUNT(*) FROM emi_schedule WHERE loan_name = '{loan_name}' AND emi_date > datetime('now')) AS remaining_emi_months,   
-    (SELECT emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' ORDER BY month DESC LIMIT 1) AS last_emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' GROUP BY loan_name; """
-                   )
+    (SELECT emi_date FROM emi_schedule WHERE loan_name = '{loan_name}' ORDER BY month DESC LIMIT 1) AS last_emi_date 
+    FROM emi_schedule 
+    WHERE loan_name = '{loan_name}' 
+    GROUP BY loan_name; """)
   # Execute the SQL query and fetch the results
   results = db.session.execute(sql_query).fetchall()
   result_dict = dict(results[0]._mapping)
@@ -140,10 +150,33 @@ def get_emi_status(loan_name, db):
     result_dict['total_principal_paid'])
   result_dict['total_interest_paid'] = formatINR(
     result_dict['total_interest_paid'])
-  result_dict['remaining_balance'] = formatINR(
-    result_dict['remaining_balance'])
+  result_dict['total_to_be_paid_in_loan_tenure'] = formatINR(
+    result_dict['total_to_be_paid_in_loan_tenure'])
   result_dict['remaining_principal'] = formatINR(
     result_dict['remaining_principal'])
   result_dict['remaining_interest'] = formatINR(
     result_dict['remaining_interest'])
+  result_dict['outstanding_emis_sum_to_be_paid'] = formatINR(
+    result_dict['outstanding_emis_sum_to_be_paid'])
+  result_dict[
+    'remaining_emi_months'] = f"{result_dict['remaining_emi_months']} ({get_years_months(int(result_dict['remaining_emi_months']))})"
   return result_dict
+
+
+def get_years_months(num_months):
+  years = num_months // 12
+  months = num_months % 12
+  if years == 0:
+    return f"{months} months"
+  elif years == 1 and months == 0:
+    return "1 year"
+  elif years == 1 and months == 1:
+    return "1 year, 1 month"
+  elif years == 1:
+    return f"1 year, {months} months"
+  elif months == 0:
+    return f"{years} years"
+  elif months == 1:
+    return f"{years} years, 1 month"
+  else:
+    return f"{years} years, {months} months"
