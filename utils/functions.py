@@ -2,8 +2,17 @@ import math
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import text
+from functools import wraps
 
+def approved_only(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_approved:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_function
 
+  
 def formatINR(number):
   """Formats the given number as an Indian Rupee amount.
     Args:

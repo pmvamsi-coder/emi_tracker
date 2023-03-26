@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="container">
-    <h1>Login</h1>
-    <form action="{{ url_for('login') }}" method="POST">
+    <h1>Register</h1>
+    <form action="{{ url_for('register') }}" method="POST">
         {{ form.csrf_token }}
         <div class="form-group">
             {{ form.email.label(class="form-label") }}
@@ -13,12 +13,12 @@
             {{ form.password.label(class="form-label") }}
             {{ form.password(class="form-control", required="required") }}
         </div>
-        <div class="form-group form-check">
-            {{ form.remember_me(class="form-check-input") }}
-            {{ form.remember_me.label(class="form-check-label", for="remember_me") }}
+        <div class="form-group">
+            {{ form.confirm_password.label(class="form-label") }}
+            {{ form.confirm_password(class="form-control", required="required") }}
         </div>
-        <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        <button type="submit" class="btn btn-primary">Register</button>
     </form>
 </div>
 {% endblock %}

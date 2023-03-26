@@ -2,23 +2,35 @@
 
 {% block content %}
 <div class="container">
-    <h1>Login</h1>
-    <form action="{{ url_for('login') }}" method="POST">
-        {{ form.csrf_token }}
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" name="email" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-        <div class="form-group form-check">
-            <input type="checkbox" name="remember_me" class="form-check-input">
-            <label class="form-check-label" for="remember_me">Remember me</label>
-        </div>
-        <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+  <h1>Login</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="d-flex justify-content-center">
+      <div class="alert alert-dismissible alert-danger" role="alert" style="font-size: 1.2rem">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% for category, message in messages %}
+        <strong>{{ message }}</strong>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endwith %}
+  <form action="{{ url_for('login') }}" method="POST">
+    {{ form.csrf_token }}
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" name="email" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <div class="form-group form-check">
+      <input type="checkbox" name="remember_me" class="form-check-input">
+      <label class="form-check-label" for="remember_me">Remember me</label>
+    </div>
+    <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
 </div>
 {% endblock %}

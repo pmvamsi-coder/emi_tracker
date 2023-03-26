@@ -49,30 +49,41 @@ def load_user(user_id):
 
 #     return render_template('login.html', form=form)
 
+# Login route for user authentication
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # check if user is already logged in
+    # If user is already logged in, redirect to home page
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
+    # Create a LoginForm object
     form = LoginForm()
+
+    # If form is submitted and validated
     if form.validate_on_submit():
+        # Get user by email address from the database
         user = User.query.filter_by(email=form.email.data).first()
+
+        # If the user exists and the password matches the hash
         if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember_me.data)
+            # If user is not approved, display a flash message and redirect to login page
+            if not user.is_approved:
+                flash('Your account is not approved yet.')
+                return redirect(url_for('login'))
 
-            # check if a previous session is stored in the session variable
-            previous_session = session.get('previous_session')
-            if previous_session:
-                print(previous_session)
-                session.pop('previous_session', None)
-                return redirect(previous_session)
+            # If user is approved, log in user and redirect to index page
+            remember_me = form.remember_me.data
+            login_user(user, remember=remember_me)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
 
-            return redirect(url_for('home'))
+        # If user does not exist or password is incorrect, display a flash message and redirect to login page
         else:
             flash('Invalid email or password')
 
-    return render_template('login.html', form=form)
+    # Render the login.html template with the LoginForm object
+    return render_template('login.html', title='Sign In', form=form)
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -292,6 +303,47 @@ def review_loan():
 
     return render_template('review_loans.html', emis=emis)
 
+
+
+@app.route('/')
+def index():
+  # return redirect(url_for('home'))
+  return render_template('unapproved_users.html')
+
+@app.route('/admin/users')
+@login_required
+def list_users():
+    if not current_user.is_admin:
+        return redirect(url_for('home'))
+
+    users = User.query.all()
+    return render_template('list_users.html', users=users)
+
+
+@app.route('/approve_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def approve_user(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('home'))
+      
+    user = User.query.get_or_404(user_id)
+    user.is_approved = True
+    db.session.commit()
+    flash('User has been approved')
+    return redirect(url_for('list_users'))
+
+
+@app.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def delete_user(user_id):
+    if not current_user.is_admin:
+        return redirect(url_for('home'))
+
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User has been deleted.')
+    return redirect(url_for('list_users'))
 
 if __name__ == "__main__":
   app.run(debug=True, host="0.0.0.0", port=5000)
